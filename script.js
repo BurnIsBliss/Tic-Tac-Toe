@@ -13,10 +13,7 @@ const gameBoardVariable = (function gameBoard () {
         board.push(boardColumns);
     }
 
-    const getGameBoard = () => {
-        // console.log(board);
-        // console.log(board[0][1].getValue());
-    }
+    const getGameBoard = () => board;
 
     const placeSymbol = (valueX, valueY, playerValue) => {
         if (board[valueX][valueY].getValue() == 0) {
@@ -49,32 +46,84 @@ function Cell() {
     return {placeValue, getValue};
 }
 
-function Players (playerOneName = "Player 1", playerTwoName = "Player 2") {
-    const playerArray = [{name: playerOneName, token: 'X'}, {name: playerTwoName, token: 'O'}];
-    let activePlayer;
+function Players (playerName = "Default Name", playerToken) {
+    const nameOfPlayer = playerName;
+    const token = playerToken;
 
-    const getName = (player) => player.name;
-    const getToken = (player) => player.token;
+    const getName = () => nameOfPlayer;
+    const getToken = () => token;
 
-    const randomFirstPlayer = () => {
-        activePlayer = playerArray[Math.floor(Math.random()*playerArray.length)];
-    }
+    // const switchActivePlayer = () => {
+    //     activePlayer = activePlayer === playerArray[0] ? playerArray[1] : playerArray[0];
+    // }
 
-    const switchActivePlayer = () => {
-        activePlayer = activePlayer === playerArray[0] ? playerArray[1] : playerArray[0];
-    }
+    // const getActivePlayer = () => activePlayer;
 
-    const getActivePlayer = () => activePlayer;
-
-    return {getName, getToken, switchActivePlayer, getActivePlayer, randomFirstPlayer};
+    return {getName, getToken, getActivePlayer};
 }
 
 // This section is responsible for controlling the flow and state of the game's turns, as well as to determine the winner
 function gameController() {
-    const playerInstances = Players();
+    const player1 = Players("Player 1", "X");
+    const player2 = Players("Player 2", "O");
 
+    let activePlayer = Math.floor(Math.random()*2)?player1:player2;
 
+    const switchPlayer = () => {
+        activePlayer = activePlayer == player1?player2:player1;
+    }
 
+    const getActivePlayer = () => activePlayer;
+
+    const roundStatus = () => {
+        let winner = 0;
+        const currentBoard = gameBoardVariable.getGameBoard();
+        let k = 0;
+        for (let i=0; i<currentBoard.length; i++){
+            if ((currentBoard[i][0]==currentBoard[i][1]==currentBoard[i][2])&&currentBoard[i][0]!=0) {
+                winner = currentBoard[i][0]==player1.getToken()?player1:player2;
+                k = 1;
+                break;
+            }
+            else if ((currentBoard[0][i]==currentBoard[1][i]==currentBoard[0][i])&&currentBoard[0][i]!=0) {
+                winner = currentBoard[0][i]==player1.getToken()?player1:player2;
+                k = 1;
+                break;
+            }
+        }
+        if (k==1) {
+            console.log(`The winner is ${winner.getName()}`);
+        }
+        // To check the diagonal cases
+        else if ((currentBoard[0][0]==currentBoard[1][1]==currentBoard[2][2])&&currentBoard[1][1]!=0) {
+            k = 1;
+            winner = currentBoard[1][1]==player1.getToken()?player1:player2;
+        }
+        else if ((currentBoard[0][2]==currentBoard[1][1]==currentBoard[2][0])&&currentBoard[1][1]!=0) {
+            k = 1;
+            winner = currentBoard[0][i]==player1.getToken()?player1:player2;
+        }
+        // To check for a tie
+        let tieGame = 0;
+        for (let i=0; i<3; i++) {
+            for (let j=0; j<3; j++) {
+                if (currentBoard[i][j]==0) {
+                    console.log("Game still in progress");
+                    tieGame = 1;
+                    break;
+                }
+            }
+            if (tieGame==1) break;
+        }
+        if (tieGame==0) winner="The game is a tie!!!";
+    };
+    const getWinnerStatus = () => winner;
+
+    return (roundStatus, getWinnerStatus, switchPlayer, getActivePlayer);
+}
+
+function displayController() {
+    
 }
 
 

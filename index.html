@@ -3,12 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tic-Tac-Toe</title>
+    <title>Tic-Tac-Toe Game</title>
     <link rel="stylesheet" href="style.css">
     <script src="script.js" defer></script>
 </head>
 <body>
-    <h1>Welcome to the game!!</h1>
+    <h1>Welcome to the 'Tic-Tac-Toe' game!!!</h1>
+    <form action="xyz.com" method="post">
+        <label for="player1Name">Player 1 Name: </label>
+        <input type="text" id="player1Name" name="player1Name" placeholder="Player 1">
+
+        <label for="player2Name">Player 2 Name: </label>
+        <input type="text" id="player2Name" name="player2Name" placeholder="Player 2">
+
+        <button class="submitForm" type="submit">Submit</button>
+    </form>
+    <div class="board"></div>
+    <button class="reset">Reset</button>
+    <button class="restart">Restart</button>
     
 </body>
 </html>

@@ -16,6 +16,7 @@ const gameBoardVariable = (function gameBoard () {
     const getGameBoard = () => board;
 
     const placeSymbol = (valueX, valueY, playerValue) => {
+        console.log(board[valueX][valueY],valueX,valueY);
         if (board[valueX][valueY].getValue() == 0) {
             board[valueX][valueY].placeValue(playerValue);
         }
@@ -59,7 +60,7 @@ function Players (playerName = "Default Name", playerToken) {
 
     // const getActivePlayer = () => activePlayer;
 
-    return {getName, getToken, getActivePlayer};
+    return {getName, getToken};
 }
 
 // This section is responsible for controlling the flow and state of the game's turns, as well as to determine the winner
@@ -72,8 +73,6 @@ function gameController() {
     const switchPlayer = () => {
         activePlayer = activePlayer == player1?player2:player1;
     }
-
-    const getActivePlayer = () => activePlayer;
 
     const roundStatus = () => {
         let winner = 0;
@@ -117,14 +116,57 @@ function gameController() {
         }
         if (tieGame==0) winner="The game is a tie!!!";
     };
+
     const getWinnerStatus = () => winner;
 
-    return (roundStatus, getWinnerStatus, switchPlayer, getActivePlayer);
+    const getActivePlayer = () => activePlayer;
+
+    return {roundStatus, getWinnerStatus, switchPlayer, getActivePlayer};
 }
 
 function displayController() {
-    
+    const currentBoard = gameBoardVariable.getGameBoard();
+    const gameControllerObject = gameController();
+
+    const boardContainer = document.querySelector(".board");
+    const displayGameBoard = () => {
+        let x=0, y;
+        for (let row of currentBoard) {
+            const createRowElement = document.createElement('div');
+            y = 0;
+            for (let col of row ) {
+                // console.log(col);
+                let createSingleELement = document.createElement('div');
+                createSingleELement.classList=(`${x}${y}`);
+                if (col.getValue()==0) createSingleELement.textContent = "nil";
+                else createSingleELement.textContent = col.getValue();
+                createRowElement.appendChild(createSingleELement);
+                y++;
+            }
+            boardContainer.appendChild(createRowElement);
+            x++;
+        }
+    }
+
+    const validCells = () => {
+        const validNode = document.querySelectorAll('.board > div > div');
+        validNode.forEach((node) => {
+            if (node.textContent=='nil') {
+                console.log(gameControllerObject.getActivePlayer().getToken());
+                node.addEventListener("click", () => {gameBoardVariable.placeSymbol(Number(node.className[0]),Number(node.className[1]),gameControllerObject.getActivePlayer().getToken()); gameControllerObject.switchPlayer(); console.log(gameControllerObject.getActivePlayer().getToken())});
+            }
+        })
+
+    }
+
+    return {displayGameBoard, validCells}
 }
 
+const displayControllerVariable = displayController();
+displayControllerVariable.displayGameBoard();
 
-gameBoardVariable.displayGameBoard();
+const displayControllerObject = displayController();
+displayControllerObject.validCells();
+
+// Prevent default
+const formSubmitButton = document.querySelector(".submitForm").addEventListener("click", (event) => event.preventDefault());

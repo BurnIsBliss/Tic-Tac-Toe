@@ -80,13 +80,11 @@ function gameController() {
         for (let i=0; i<currentBoard.length; i++){
             if (currentBoard[i][0].getValue()==currentBoard[i][1].getValue()&&currentBoard[i][1].getValue()==currentBoard[i][2].getValue()&&currentBoard[i][0].getValue()!=0) {
                 winner = currentBoard[i][0].getValue()==player1.getToken()?player1:player2;
-                console.log("First check");
                 k = 1;
                 break;
             }
             else if (currentBoard[0][i].getValue()==currentBoard[1][i].getValue()&&currentBoard[1][i].getValue()==currentBoard[2][i].getValue()&&currentBoard[0][i].getValue()!=0) {
                 winner = currentBoard[0][i].getValue()==player1.getToken()?player1:player2;
-                console.log("Second check");
                 k = 1;
                 break;
             }
@@ -105,17 +103,22 @@ function gameController() {
         }
         // To check for a tie
         let tieGame = 0;
-        for (let i=0; i<3; i++) {
-            for (let j=0; j<3; j++) {
-                if (currentBoard[i][j].getValue()==0) {
-                    console.log("Game still in progress");
-                    tieGame = 1;
-                    break;
+        if (winner == 0) {
+            for (let i=0; i<3; i++) {
+                for (let j=0; j<3; j++) {
+                    if (currentBoard[i][j].getValue()==0) {
+                        console.log("Game still in progress");
+                        tieGame = 1;
+                        break;
+                    }
                 }
+                if (tieGame==1) break;
             }
-            if (tieGame==1) break;
         }
-        if (tieGame==0) winner="The game is a tie!!!";
+        if (tieGame==0) {
+            winner="The game is a tie!!!";
+            console.log('Tie game');
+        }
     };
 
     const getWinnerStatus = () => winner;

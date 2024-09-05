@@ -27,3 +27,8 @@ body {
 .board > div {
     display: flex;
 }
+
+dialog {
+    text-align: center;
+    height: 100px;
+}

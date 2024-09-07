@@ -25,11 +25,7 @@ const gameBoardVariable = (function gameBoard () {
         }
     }
 
-    const displayGameBoard = () => {
-        // Display the board after each token placement
-    }
-
-    return {getGameBoard, displayGameBoard, placeSymbol, setBoard}
+    return {getGameBoard, placeSymbol, setBoard}
 })();
 
 // Function to populate the individual cells
@@ -107,21 +103,21 @@ function gameController() {
                         tieGame = 1;
                         break;
                     }
-                }
-                if (tieGame==1) break;
+                }if (tieGame==1) break;
             }
         }
         if (tieGame==0 && winner==0) {
-            // winner="The game is a tie!!!";
+            winner = 'The game is a TIE!!!';
             console.log('Tie game');
         }
 
         if(winner) return 1;
+        else return 0;
     };
 
     const getWinnerStatus = () => {
-        if (winner) return(`${winner.getName()} wins!!!`);
-        else return winner;
+        if (winner=='The game is a TIE!!!') return(winner);
+        else if (winner) return `${winner.getName()} wins!!!`;
     }
 
     const getActivePlayer = () => activePlayer;
@@ -137,6 +133,7 @@ function displayController() {
     const displayGameBoard = () => {
         let x=0, y;
         while (boardContainer.firstChild) {
+            // console.log('remove');
             boardContainer.removeChild(boardContainer.lastChild);
         }
         for (let row of currentBoard) {
@@ -146,7 +143,7 @@ function displayController() {
                 // console.log(col);
                 let createSingleELement = document.createElement('div');
                 createSingleELement.classList=(`${x}${y}`);
-                if (col.getValue()==0) createSingleELement.textContent = "nil";
+                if (col.getValue()==0) createSingleELement.textContent = "";
                 else createSingleELement.textContent = col.getValue();
                 createRowElement.appendChild(createSingleELement);
                 y++;
@@ -160,15 +157,15 @@ function displayController() {
         const validNode = document.querySelectorAll('.board > div > div');
         let gameStatus;
         validNode.forEach((node) => {
-            if (node.textContent=='nil') {
+            if (node.textContent=='') {
                 node.addEventListener("click", () => {
                     gameBoardVariable.placeSymbol(Number(node.className[0]),Number(node.className[1]),gameControllerObject.getActivePlayer().getToken());
                     displayGameBoard();
                     node.textContent = gameControllerObject.getActivePlayer().getToken();
                     gameControllerObject.switchPlayer(); 
                     gameStatus = gameControllerObject.roundStatus();
-                    if (!gameStatus) validCells();
-                    else {displayWinnerOnScreen();};
+                    if (gameStatus==0) validCells();
+                    else {displayWinnerOnScreen()};
                 });
             }
         })
@@ -180,11 +177,12 @@ function displayController() {
         headingElement.textContent = `${gameControllerObject.getWinnerStatus()}`;
         dialogElement.appendChild(headingElement);
         const restartButton = document.createElement('button');
-        restartButton.textContent = 'Reset';
+        restartButton.textContent = 'Replay';
         restartButton.addEventListener('click', () => {
             gameBoardVariable.setBoard();
-            displayGameBoard();
             dialogElement.close();
+            displayGameBoard();
+            validCells();
         })
         dialogElement.appendChild(restartButton);
         dialogElement.showModal();
@@ -202,7 +200,7 @@ gameBoardVariable.setBoard();
 const displayControllerObject = displayController();
 displayControllerObject.displayGameBoard();
 displayControllerObject.validCells();
-displayControllerObject.displayFirstPlayerMoveInfo();
+// displayControllerObject.displayFirstPlayerMoveInfo();
 
 // Prevent default
 const formSubmitButton = document.querySelector(".submitForm").addEventListener("click", (event) => event.preventDefault());

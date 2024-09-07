@@ -6,7 +6,6 @@ const gameBoardVariable = (function gameBoard () {
     // initializing the board
     const setBoard = () => {
         if (board.length) {
-            // console.log(board.length);
             board = [];
         }
         for (let i=0; i<rows; i++) {
@@ -48,20 +47,18 @@ function Cell() {
 }
 
 function Players (playerName, playerToken) {
-    const nameOfPlayer = playerName;
+    let nameOfPlayer = playerName;
     const token = playerToken;
 
     const getName = () => nameOfPlayer;
     const getToken = () => token;
+    const changeName = (newName) => nameOfPlayer = newName;
 
-    return {getName, getToken};
+    return {getName, getToken, changeName};
 }
 
 // This section is responsible for controlling the flow and state of the game's turns, as well as to determine the winner
 function gameController() {
-    let player1 = Players ("#1", 'X');
-    let player2 = Players ('#2', 'O');
-
     let winner = 0;
 
     let activePlayer = (Math.floor(Math.random()*2))?player1:player2;
@@ -130,19 +127,21 @@ function gameController() {
     const resetWinner = () => winner = 0;
 
     const createPlayer1 = (name) => {
-        player1 = Players(name, 'X');
+        player1.changeName(name);
     };
 
     const createPlayer2 = (name) => {
-        player2 = Players(name, 'O');
+        player2.changeName(name);
     };
 
-    return {roundStatus, getWinnerStatus, switchPlayer, getActivePlayer, resetWinner, createPlayer1, createPlayer2};
+    const printPlayerNames = () => console.log(`${player1.getName()}-${player2.getName()}`)
+
+    return {roundStatus, getWinnerStatus, switchPlayer, getActivePlayer, resetWinner, createPlayer1, createPlayer2, printPlayerNames};
 }
 
 function displayController() {
     const gameControllerObject = gameController();
-
+    
     const boardContainer = document.querySelector(".board");
     const displayGameBoard = () => {
         let x=0, y;
@@ -214,6 +213,9 @@ function displayController() {
 
 gameBoardVariable.setBoard();
 
+let player1 = Players ("Player #1", 'X');
+let player2 = Players ('Player #2', 'O');
+
 const displayControllerObject = displayController();
 const gameControllerObjectMain = gameController();
 displayControllerObject.displayGameBoard();
@@ -229,14 +231,11 @@ restartButtonMain.addEventListener("click", () => {
     gameControllerObjectMain.resetWinner();
 })
 
-// Prevent default
-const formSubmitButton = document.querySelector(".submitForm").addEventListener("submit", (event) => {
-    console.log(event);
-    const gameControllerObject = gameController();
-    let player1Name = document.querySelector('#player1Name').value();
-    if (player1Name) gameControllerObject.createPlayer1(player1Name);
-    console.log(player1Name);
-    let player2Name = document.querySelector('#player2Name').value();
-    if (player1Name) gameControllerObject.createPlayer2(player2Name);
+// Prevent default and set the player names
+const formSubmitButton = document.querySelector(".submitForm").addEventListener("click", (event) => {
+    let player1Name = document.querySelector('#player1Name').value;
+    if (player1Name) gameControllerObjectMain.createPlayer1(player1Name);
+    let player2Name = document.querySelector('#player2Name').value;
+    if (player2Name) gameControllerObjectMain.createPlayer2(player2Name);
     event.preventDefault();
 });

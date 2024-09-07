@@ -1,10 +1,14 @@
 const gameBoardVariable = (function gameBoard () {
     let rows=3, columns=3;
 
-    let board = []
+    let board = [];
 
     // initializing the board
     const setBoard = () => {
+        if (board.length) {
+            // console.log(board.length);
+            board = [];
+        }
         for (let i=0; i<rows; i++) {
             let boardColumns = [];
             for (let j=0; j<columns; j++) {
@@ -43,7 +47,7 @@ function Cell() {
     return {placeValue, getValue};
 }
 
-function Players (playerName = "Default Name", playerToken) {
+function Players (playerName, playerToken) {
     const nameOfPlayer = playerName;
     const token = playerToken;
 
@@ -55,8 +59,8 @@ function Players (playerName = "Default Name", playerToken) {
 
 // This section is responsible for controlling the flow and state of the game's turns, as well as to determine the winner
 function gameController() {
-    const player1 = Players("Player 1", "X");
-    const player2 = Players("Player 2", "O");
+    let player1 = Players ("#1", 'X');
+    let player2 = Players ('#2', 'O');
 
     let winner = 0;
 
@@ -67,7 +71,8 @@ function gameController() {
     }
 
     const roundStatus = () => {
-        const currentBoard = gameBoardVariable.getGameBoard();
+        let currentBoard = gameBoardVariable.getGameBoard();
+
         let k = 0;
         for (let i=0; i<currentBoard.length; i++){
             if (currentBoard[i][0].getValue()==currentBoard[i][1].getValue()&&currentBoard[i][1].getValue()==currentBoard[i][2].getValue()&&currentBoard[i][0].getValue()!=0) {
@@ -122,25 +127,32 @@ function gameController() {
 
     const getActivePlayer = () => activePlayer;
 
-    return {roundStatus, getWinnerStatus, switchPlayer, getActivePlayer};
+    const resetWinner = () => winner = 0;
+
+    const createPlayer1 = (name) => {
+        player1 = Players(name, 'X');
+    };
+
+    const createPlayer2 = (name) => {
+        player2 = Players(name, 'O');
+    };
+
+    return {roundStatus, getWinnerStatus, switchPlayer, getActivePlayer, resetWinner, createPlayer1, createPlayer2};
 }
 
 function displayController() {
-    const currentBoard = gameBoardVariable.getGameBoard();
     const gameControllerObject = gameController();
 
     const boardContainer = document.querySelector(".board");
     const displayGameBoard = () => {
         let x=0, y;
         while (boardContainer.firstChild) {
-            // console.log('remove');
             boardContainer.removeChild(boardContainer.lastChild);
         }
-        for (let row of currentBoard) {
+        for (let row of gameBoardVariable.getGameBoard()) {
             const createRowElement = document.createElement('div');
             y = 0;
             for (let col of row ) {
-                // console.log(col);
                 let createSingleELement = document.createElement('div');
                 createSingleELement.classList=(`${x}${y}`);
                 if (col.getValue()==0) createSingleELement.textContent = "";
@@ -174,15 +186,20 @@ function displayController() {
     const displayWinnerOnScreen = () => {
         const dialogElement = document.querySelector('dialog');
         const headingElement = document.createElement('h1');
-        headingElement.textContent = `${gameControllerObject.getWinnerStatus()}`;
+        console.log(gameControllerObject.getWinnerStatus());
+        if (!headingElement.textContent) headingElement.textContent = '';
+        headingElement.textContent = gameControllerObject.getWinnerStatus();
         dialogElement.appendChild(headingElement);
         const restartButton = document.createElement('button');
         restartButton.textContent = 'Replay';
         restartButton.addEventListener('click', () => {
             gameBoardVariable.setBoard();
-            dialogElement.close();
             displayGameBoard();
             validCells();
+            gameControllerObject.resetWinner();
+            dialogElement.close();
+            headingElement.remove();
+            restartButton.remove();
         })
         dialogElement.appendChild(restartButton);
         dialogElement.showModal();
@@ -192,15 +209,34 @@ function displayController() {
         alert(`${gameControllerObject.getActivePlayer().getName()} goes first.`);
     }
 
-    return {displayGameBoard, validCells, displayFirstPlayerMoveInfo, displayWinnerOnScreen}
+    return {displayGameBoard, validCells, displayFirstPlayerMoveInfo, displayWinnerOnScreen};
 }
 
 gameBoardVariable.setBoard();
 
 const displayControllerObject = displayController();
+const gameControllerObjectMain = gameController();
 displayControllerObject.displayGameBoard();
 displayControllerObject.validCells();
 // displayControllerObject.displayFirstPlayerMoveInfo();
 
+// Implementing the functionality for the 'Restart' button
+const restartButtonMain = document.querySelector('.restart');
+restartButtonMain.addEventListener("click", () => {
+    gameBoardVariable.setBoard();
+    displayControllerObject.displayGameBoard();
+    displayControllerObject.validCells();
+    gameControllerObjectMain.resetWinner();
+})
+
 // Prevent default
-const formSubmitButton = document.querySelector(".submitForm").addEventListener("click", (event) => event.preventDefault());
+const formSubmitButton = document.querySelector(".submitForm").addEventListener("submit", (event) => {
+    console.log(event);
+    const gameControllerObject = gameController();
+    let player1Name = document.querySelector('#player1Name').value();
+    if (player1Name) gameControllerObject.createPlayer1(player1Name);
+    console.log(player1Name);
+    let player2Name = document.querySelector('#player2Name').value();
+    if (player1Name) gameControllerObject.createPlayer2(player2Name);
+    event.preventDefault();
+});

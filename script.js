@@ -59,6 +59,9 @@ function Players (playerName, playerToken) {
 
 // This section is responsible for controlling the flow and state of the game's turns, as well as to determine the winner
 function gameController() {
+    let player1 = Players ("Player #1", 'X');
+    let player2 = Players ('Player #2', 'O');
+
     let winner = 0;
 
     let activePlayer = (Math.floor(Math.random()*2))?player1:player2;
@@ -140,8 +143,6 @@ function gameController() {
 }
 
 function displayController() {
-    const gameControllerObject = gameController();
-    
     const boardContainer = document.querySelector(".board");
     const displayGameBoard = () => {
         let x=0, y;
@@ -170,11 +171,11 @@ function displayController() {
         validNode.forEach((node) => {
             if (node.textContent=='') {
                 node.addEventListener("click", () => {
-                    gameBoardVariable.placeSymbol(Number(node.className[0]),Number(node.className[1]),gameControllerObject.getActivePlayer().getToken());
+                    gameBoardVariable.placeSymbol(Number(node.className[0]),Number(node.className[1]),gameControllerObjectMain.getActivePlayer().getToken());
                     displayGameBoard();
-                    node.textContent = gameControllerObject.getActivePlayer().getToken();
-                    gameControllerObject.switchPlayer(); 
-                    gameStatus = gameControllerObject.roundStatus();
+                    node.textContent = gameControllerObjectMain.getActivePlayer().getToken();
+                    gameControllerObjectMain.switchPlayer(); 
+                    gameStatus = gameControllerObjectMain.roundStatus();
                     if (gameStatus==0) validCells();
                     else {displayWinnerOnScreen()};
                 });
@@ -185,9 +186,9 @@ function displayController() {
     const displayWinnerOnScreen = () => {
         const dialogElement = document.querySelector('dialog');
         const headingElement = document.createElement('h1');
-        console.log(gameControllerObject.getWinnerStatus());
+        console.log(gameControllerObjectMain.getWinnerStatus());
         if (!headingElement.textContent) headingElement.textContent = '';
-        headingElement.textContent = gameControllerObject.getWinnerStatus();
+        headingElement.textContent = gameControllerObjectMain.getWinnerStatus();
         dialogElement.appendChild(headingElement);
         const restartButton = document.createElement('button');
         restartButton.textContent = 'Replay';
@@ -195,7 +196,7 @@ function displayController() {
             gameBoardVariable.setBoard();
             displayGameBoard();
             validCells();
-            gameControllerObject.resetWinner();
+            gameControllerObjectMain.resetWinner();
             dialogElement.close();
             headingElement.remove();
             restartButton.remove();
@@ -205,7 +206,7 @@ function displayController() {
     }
 
     const displayFirstPlayerMoveInfo = () => {
-        alert(`${gameControllerObject.getActivePlayer().getName()} goes first.`);
+        alert(`${gameControllerObjectMain.getActivePlayer().getName()} goes first.`);
     }
 
     return {displayGameBoard, validCells, displayFirstPlayerMoveInfo, displayWinnerOnScreen};
